@@ -23,6 +23,20 @@ It creates a new category: **Autonomous Economic Relationship Protocols (AERP).*
 
 ---
 
+## 🌐 Monad Testnet Deployment ✅
+
+| Contract | Address |
+|----------|---------|
+| **TreatyContract** | `0x55ccE18b8A750cc738841174DFEA0516810CA683` |
+| **ConstitutionRegistry** | `0xd75cB676ba68B725C71E4b2948a09bc01Dc77bac` |
+| **MediatorSwarm** | `0xA399521120DBA938c769A70e40bb84096270e7c4` |
+| Deployer | `0x42f2EBAa948681118DAac17EEc7e7EE93ae0FAd5` |
+| Chain | Monad Testnet (10143) |
+
+To switch to Monad: `cp agent/.env.monad agent/.env`
+
+---
+
 ## The Problem
 
 AI agents manage billions in DeFi. But they can't do business with each other. Why?
