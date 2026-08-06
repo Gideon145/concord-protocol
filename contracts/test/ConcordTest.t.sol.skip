@@ -1,0 +1,225 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.28;
+
+import {Test, console} from "forge-std/Test.sol";
+import {TreatyContract} from "../src/TreatyContract.sol";
+import {ConstitutionRegistry} from "../src/ConstitutionRegistry.sol";
+import {MediatorSwarm} from "../src/MediatorSwarm.sol";
+
+/**
+ * @title ConcordTest
+ * @notice Full lifecycle test for the CONCORD Living Treaty Protocol.
+ */
+contract ConcordTest is Test {
+    TreatyContract public treatyContract;
+    ConstitutionRegistry public constitutionRegistry;
+    MediatorSwarm public mediatorSwarm;
+
+    address public deployer = address(0x1);
+    address public agentA = address(0xA);
+    address public agentB = address(0xB);
+    address public monitorAgent = address(0x4);
+    address public mediator1 = address(0x11);
+    address public mediator2 = address(0x22);
+    address public mediator3 = address(0x33);
+
+    function setUp() public {
+        vm.startPrank(deployer);
+
+        // Deploy ConstitutionRegistry first (with temp zero treaty address)
+        constitutionRegistry = new ConstitutionRegistry(address(0));
+
+        // Deploy MediatorSwarm
+        mediatorSwarm = new MediatorSwarm(address(0), address(constitutionRegistry));
+
+        // Deploy TreatyContract
+        treatyContract = new TreatyContract(
+            address(constitutionRegistry),
+            address(mediatorSwarm),
+            deployer, // cviOracle (stub)
+            deployer, // cvaOracle (stub)
+            deployer, // ccpGateway (stub)
+            monitorAgent
+        );
+
+        // Wire cross-references
+        constitutionRegistry.setTreatyContract(address(treatyContract));
+        mediatorSwarm.setTreatyContract(address(treatyContract));
+
+        // Register mediator agents
+        address[3] memory mediatorAddresses = [mediator1, mediator2, mediator3];
+        string[3] memory mediatorNames = ["Med-1", "Med-2", "Med-3"];
+        string[3] memory mediatorSpecialties = [
+            "market_fairness",
+            "risk_assessment",
+            "historical_analysis"
+        ];
+        mediatorSwarm.registerMediators(mediatorAddresses, mediatorNames, mediatorSpecialties);
+
+        vm.stopPrank();
+    }
+
+    /**
+     * Test: Full treaty lifecycle — PROPOSED → NEGOTIATING → VALIDATING → ACTIVE
+     */
+    function test_FullLifecycle_ProposeToActive() public {
+        // ── Register both agents ──
+        vm.startPrank(agentA);
+        constitutionRegistry.registerAgent(bytes32(uint256(1)), 3);
+        constitutionRegistry.addRule("max_exposure", "max_exposure_per_counterparty: 1_000_000 USD");
+        constitutionRegistry.addRule("min_counterparty_tier", "min_counterparty_tier: 2");
+        constitutionRegistry.sealConstitution();
+        vm.stopPrank();
+
+        vm.startPrank(agentB);
+        constitutionRegistry.registerAgent(bytes32(uint256(2)), 2);
+        constitutionRegistry.addRule("min_apr", "min_apr: 4%");
+        constitutionRegistry.addRule("max_lockup", "max_lockup: 90 days");
+        constitutionRegistry.sealConstitution();
+        vm.stopPrank();
+
+        // ── Agent A proposes treaty ──
+        vm.startPrank(agentA);
+        TreatyContract.TreatyTerms memory terms = TreatyContract.TreatyTerms({
+            partyACVI: bytes32(uint256(1)),
+            partyBCVI: bytes32(uint256(2)),
+            minTierA: 3,
+            minTierB: 2,
+            amount: 100_000 * 1e6, // $100K USDC (6 decimals)
+            interestRate: 650,       // 6.5%
+            duration: 216000,        // ~30 days of blocks
+            collateralRatio: 15000,  // 150%
+            liquidationThreshold: 12000, // 120%
+            monitoredConditions: 0x3FF, // All 10 conditions
+            breachGraceBlocks: 7200, // ~24h
+            renegotiationWindow: 3600,
+            maxRenegotiationRounds: 3,
+            settlementAsset: address(0x5),
+            penaltyBps: 500          // 5%
+        });
+
+        bytes32 treatyId = treatyContract.proposeTreaty(agentB, terms);
+        vm.stopPrank();
+
+        // Verify initial state
+        (, , , uint256 stateNum, , , , , , , , , , , , , , , ) = treatyContract.treaties(treatyId);
+        assertEq(stateNum, uint256(TreatyContract.TreatyState.PROPOSED));
+
+        // ── Agent B accepts negotiation ──
+        vm.startPrank(agentB);
+        treatyContract.acceptNegotiation(treatyId);
+        vm.stopPrank();
+
+        // ── Finalize negotiation ──
+        vm.startPrank(agentA);
+        treatyContract.finalizeNegotiation(treatyId);
+        vm.stopPrank();
+
+        // ── Monitor activates treaty ──
+        vm.startPrank(monitorAgent);
+        treatyContract.activateTreaty(treatyId);
+        vm.stopPrank();
+
+        // Verify ACTIVE state
+        (, , , stateNum, , , , , , , , , , , , , , , ) = treatyContract.treaties(treatyId);
+        assertEq(stateNum, uint256(TreatyContract.TreatyState.ACTIVE));
+        console.log("✅ Treaty activated:", uint256(treatyId));
+    }
+
+    /**
+     * Test: DEGRADING → RENEGOTIATING → back to ACTIVE
+     */
+    function test_DegradationAndRenegotiation() public {
+        // Setup: create and activate treaty first
+        test_FullLifecycle_ProposeToActive();
+
+        bytes32 treatyId = treatyContract.treatyIds(0);
+
+        // ── Monitor records degradation ──
+        vm.startPrank(monitorAgent);
+        treatyContract.recordAttestation(
+            treatyId,
+            0x3FF ^ (1 << 4), // Soft condition 4 (collateral approach) flagged
+            bytes32(uint256(0x1234)),
+            TreatyContract.TreatyState.DEGRADING,
+            "Collateral approaching threshold: 125%",
+            TreatyContract.BreachTier.NONE
+        );
+        vm.stopPrank();
+
+        (, , , uint256 stateNum, , , , , , , , , , , , , , , ) = treatyContract.treaties(treatyId);
+        assertEq(stateNum, uint256(TreatyContract.TreatyState.DEGRADING));
+        console.log("✅ Treaty degraded.");
+
+        // ── Agent A initiates renegotiation ──
+        vm.startPrank(agentA);
+        TreatyContract.TreatyTerms memory newTerms = TreatyContract.TreatyTerms({
+            partyACVI: bytes32(uint256(1)),
+            partyBCVI: bytes32(uint256(2)),
+            minTierA: 3,
+            minTierB: 2,
+            amount: 100_000 * 1e6,
+            interestRate: 750,       // Increased from 650 to 750 (7.5%)
+            duration: 216000,
+            collateralRatio: 11000,   // Reduced from 150% to 110%
+            liquidationThreshold: 12000,
+            monitoredConditions: 0x3FF,
+            breachGraceBlocks: 7200,
+            renegotiationWindow: 3600,
+            maxRenegotiationRounds: 3,
+            settlementAsset: address(0x5),
+            penaltyBps: 500
+        });
+        treatyContract.initiateRenegotiation(treatyId, newTerms);
+        vm.stopPrank();
+
+        // ── Agent B accepts renegotiation ──
+        vm.startPrank(agentB);
+        treatyContract.acceptRenegotiation(treatyId, bytes32(uint256(0x5678)));
+        vm.stopPrank();
+
+        // Verify back to ACTIVE
+        (, , , stateNum, , , , , , , , , , , , , , , ) = treatyContract.treaties(treatyId);
+        assertEq(stateNum, uint256(TreatyContract.TreatyState.ACTIVE));
+        console.log("✅ Renegotiation accepted. Treaty active again.");
+    }
+
+    /**
+     * Test: BREACHED → ARBITRATING → RESOLVING → SETTLED
+     */
+    function test_BreachAndSettlement() public {
+        test_FullLifecycle_ProposeToActive();
+        bytes32 treatyId = treatyContract.treatyIds(0);
+
+        // ── Monitor records fundamental breach ──
+        vm.startPrank(monitorAgent);
+        treatyContract.recordAttestation(
+            treatyId,
+            0x3FF ^ (1 << 0), // CVI status bit cleared
+            bytes32(uint256(0xBEEF)),
+            TreatyContract.TreatyState.BREACHED,
+            "CVI credential revoked for party B",
+            TreatyContract.BreachTier.FUNDAMENTAL
+        );
+        vm.stopPrank();
+
+        (, , , uint256 stateNum, , , , , , , , , , , , , , , ) = treatyContract.treaties(treatyId);
+        // FUNDAMENTAL breach skips CURING → goes to ARBITRATING
+        assertEq(stateNum, uint256(TreatyContract.TreatyState.ARBITRATING));
+        console.log("✅ Fundamental breach → Arbitrating.");
+
+        // ── MediatorSwarm resolves breach ──
+        vm.startPrank(address(mediatorSwarm));
+        treatyContract.resolveBreach(treatyId, 100_000 * 1e6, true, 5_000 * 1e6);
+        vm.stopPrank();
+
+        // ── Monitor executes settlement ──
+        vm.startPrank(monitorAgent);
+        treatyContract.executeSettlement(treatyId);
+        vm.stopPrank();
+
+        (, , , stateNum, , , , , , , , , , , , , , , ) = treatyContract.treaties(treatyId);
+        assertEq(stateNum, uint256(TreatyContract.TreatyState.SETTLED));
+        console.log("✅ Breach resolved. Treaty settled.");
+    }
+}

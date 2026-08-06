@@ -1,0 +1,11 @@
+[build]
+builder = "nixpacks"
+buildCommand = "cd agent && npm install && npm run build"
+
+[deploy]
+startCommand = "node agent/dist/index.js"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 5
+
+[service]
+port = 3001
