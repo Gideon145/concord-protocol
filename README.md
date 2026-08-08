@@ -23,7 +23,7 @@ It creates a new category: **Autonomous Economic Relationship Protocols (AERP).*
 
 ---
 
-## Why CONCORD Wins — No Direct Competitor Exists
+## Competitive Landscape — No Direct Competitor Exists
 
 No existing protocol implements autonomous AI-to-AI bilateral economic agreements with continuous monitoring and self-healing renegotiation.
 
@@ -490,7 +490,7 @@ Monad's 400ms block times and 800ms finality make it the only EVM chain fast eno
 - [ ] Governance token for decentralized Mediator Swarm participation
 - [ ] Insurance pool for treaty default protection
 
-## Why CONCORD Wins This Hackathon
+## Scored Against the Judging Criteria
 
 ### Innovation (35% of judging criteria)
 CONCORD creates a new protocol category — **Autonomous Economic Relationship Protocols (AERP).** No prior art exists anywhere in DeFi. The 12-state machine, 3-agent Mediator Swarm with ELO reputation, and 10-condition continuous Parry-pattern monitoring are novel combinations of primitives never before assembled into a single protocol. Six Cleanverse ecosystem capabilities are used as foundational infrastructure, not optional add-ons — no other submission integrates at this depth.
