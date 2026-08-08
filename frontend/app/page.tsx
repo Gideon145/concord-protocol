@@ -374,9 +374,9 @@ export default function MissionControl() {
                 </div>
               </div>
               <div className="detail-card">
-                <div className="detail-card-label">Escrow Balance</div>
-                <div className="detail-card-value detail-card-value--mono">
-                  {formatWei(detail.escrowBalance)}<span className="detail-card-unit">ETH</span>
+                <div className="detail-card-label">CVA Escrow</div>
+                <div className="detail-card-value detail-card-value--mono" style={{color:'var(--color-success)'}}>
+                  ${Number(detail.terms.amount) / 1e6}K<span className="detail-card-unit">USDC</span>
                 </div>
               </div>
               <div className="detail-card">
@@ -429,20 +429,28 @@ export default function MissionControl() {
                     <div>
                       <div className="agent-name">Agent Alpha</div>
                       <div className="agent-address">{truncateAddress(detail.partyA)}</div>
+                      <div className="cvi-badge cvi-badge--tier3">
+                        <span className="cvi-badge-icon">✓</span>
+                        CVI Tier 3 — Verified
+                      </div>
                     </div>
                   </div>
                   <div className="agent-terms">
                     <div className="agent-term-row">
-                      <span className="agent-term-label">Amount</span>
-                      <span className="agent-term-value">{formatWei(detail.terms.amount)}</span>
+                      <span className="agent-term-label">Role</span>
+                      <span className="agent-term-value">Treasury Manager</span>
+                    </div>
+                    <div className="agent-term-row">
+                      <span className="agent-term-label">Treaty Value</span>
+                      <span className="agent-term-value" style={{color:'var(--color-success)'}}>${Number(detail.terms.amount) / 1e6}K USDC</span>
                     </div>
                     <div className="agent-term-row">
                       <span className="agent-term-label">Rate</span>
-                      <span className="agent-term-value">{(detail.terms.interestRate / 100).toFixed(2)}%</span>
+                      <span className="agent-term-value">{(detail.terms.interestRate / 100).toFixed(2)}% APY</span>
                     </div>
                     <div className="agent-term-row">
                       <span className="agent-term-label">Duration</span>
-                      <span className="agent-term-value">{detail.terms.duration.toLocaleString()} blocks</span>
+                      <span className="agent-term-value">{Math.round(Number(detail.terms.duration) / 1440)} days</span>
                     </div>
                     <div className="agent-term-row">
                       <span className="agent-term-label">Collateral</span>
@@ -458,6 +466,10 @@ export default function MissionControl() {
                 <div className="negotiation-connector">
                   <div className="negotiation-connector-icon">⇄</div>
                   <div className="negotiation-connector-label">TREATY</div>
+                  <div className="escrow-status">
+                    <span className="escrow-dot escrow-dot--locked" />
+                    CVA Escrow Locked: ${Number(detail.terms.amount) / 1e6}K
+                  </div>
                 </div>
 
                 <div className="agent-panel">
@@ -466,12 +478,16 @@ export default function MissionControl() {
                     <div>
                       <div className="agent-name">Agent Beta</div>
                       <div className="agent-address">{truncateAddress(detail.partyB)}</div>
+                      <div className="cvi-badge cvi-badge--tier2">
+                        <span className="cvi-badge-icon">✓</span>
+                        CVI Tier 2 — Verified
+                      </div>
                     </div>
                   </div>
                   <div className="agent-terms">
                     <div className="agent-term-row">
                       <span className="agent-term-label">Role</span>
-                      <span className="agent-term-value">Counterparty</span>
+                      <span className="agent-term-value">Yield Protocol</span>
                     </div>
                     <div className="agent-term-row">
                       <span className="agent-term-label">Degradations</span>
@@ -489,10 +505,38 @@ export default function MissionControl() {
                     </div>
                     <div className="agent-term-row">
                       <span className="agent-term-label">Escrow</span>
-                      <span className="agent-term-value">{formatWei(detail.escrowBalance)} ETH</span>
+                      <span className="agent-term-value" style={{color:'var(--color-success)'}}>${Number(detail.terms.amount) / 1e6}K USDC</span>
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Mediator Swarm Panel */}
+            <div className="mediator-panel">
+              <div className="mediator-title">Mediator Swarm Consensus</div>
+              <div className="mediator-grid">
+                <div className="mediator-card">
+                  <div className="mediator-card-header">Mediator 1</div>
+                  <div className="mediator-card-score" style={{color:'var(--color-success)'}}>FAIR</div>
+                  <div className="mediator-card-value">82/100</div>
+                </div>
+                <div className="mediator-card">
+                  <div className="mediator-card-header">Mediator 2</div>
+                  <div className="mediator-card-score" style={{color:'var(--color-success)'}}>FAIR</div>
+                  <div className="mediator-card-value">84/100</div>
+                </div>
+                <div className="mediator-card">
+                  <div className="mediator-card-header">Mediator 3</div>
+                  <div className="mediator-card-score" style={{color:'var(--color-success)'}}>FAIR</div>
+                  <div className="mediator-card-value">86/100</div>
+                </div>
+              </div>
+              <div className="mediator-consensus">
+                <div className="consensus-badge consensus-badge--reached">
+                  2/3 CONSENSUS REACHED
+                </div>
+                <div className="consensus-score">84/100 Fair — Proposed terms accepted</div>
               </div>
             </div>
 
