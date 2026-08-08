@@ -1,6 +1,10 @@
 # CONCORD — The Living Treaty Protocol
 
 <p align="center">
+  <img src="banner.png" alt="CONCORD" width="100%" />
+</p>
+
+<p align="center">
   <strong>Autonomous economic relationships between AI agents — verified, monitored, and self-healing.</strong>
 </p>
 
