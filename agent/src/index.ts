@@ -215,7 +215,7 @@ async function start(): Promise<void> {
     console.log(`TreatyContract: ${config.treatyContract}`);
     console.log(`ConstitutionRegistry: ${config.constitutionRegistry}`);
     console.log(`MediatorSwarm: ${config.mediatorSwarm}`);
-    console.log(`Cleanverse API: ${config.cleanverseApiBase}`);
+    console.log(`Cleanverse API: sandbox (hardcoded)`);
     console.log(`Monitor interval: ${config.monitorIntervalMs}ms`);
     console.log(`Status server: :${config.statusPort}`);
     console.log("");
