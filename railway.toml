@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "cd agent && npm install"
+buildCommand = "cd agent && PUPPETEER_SKIP_DOWNLOAD=true npm install"
 
 [deploy]
 startCommand = "cd agent && npx tsx src/index.ts"
