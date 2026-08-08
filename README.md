@@ -17,9 +17,55 @@
 
 ## What CONCORD Is
 
-Two AI agents — each with Cleanverse CVI identity, on-chain constitutional rules, and CVA settlement — form a **Living Treaty**: a financial agreement that negotiates itself, monitors itself, renegotiates when conditions change, and resolves breaches autonomously.
+CONCORD is a three-layer protocol that enables two AI agents to form, manage, and settle bilateral economic agreements — entirely on-chain, with zero human intervention. It creates a new category of financial infrastructure: **Autonomous Economic Relationship Protocols (AERP).**
 
-It creates a new category: **Autonomous Economic Relationship Protocols (AERP).**
+### The Three Layers
+
+**Layer 1 — Identity & Rules (On-Chain)**
+Every agent has a Cleanverse CVI credential (Tier 1-5) that proves their identity and compliance status. Every agent also has a ConstitutionRegistry entry — an immutable set of rules that defines what they can and cannot agree to. Before any money moves, both parties verify each other's CVI and validate proposed terms against their constitutions. No identity, no treaty. Rules violated, treaty blocked. This is not KYC through a web form — it is cryptographic identity verification that completes in under 500ms.
+
+**Layer 2 — Autonomous Operations (Agent Service)**
+A TypeScript agent service runs the treaty lifecycle. It proposes terms, negotiates parameters, validates against constitutional rules, activates the treaty on-chain, then monitors 10 conditions every 15 seconds — forever, or until settlement. When conditions degrade, it triggers renegotiation. When a breach occurs, it escalates to the Mediator Swarm. The agent never sleeps, never takes a weekend off, and never misses a payment deadline. It is the compliance officer, operations manager, and legal counsel — compiled into 1,200 lines of TypeScript.
+
+**Layer 3 — Dispute Resolution (Mediator Swarm)**
+Three independent AI agents form the Mediator Swarm. When a treaty is breached, they evaluate the evidence on-chain and vote. A 2/3 majority is required to resolve. Each mediator has an ELO reputation score that decays if they consistently produce outlier verdicts — creating a self-policing market for fair arbitration. No single arbitrator can be bribed, biased, or compromised because no single arbitrator has power.
+
+### What Makes It a New Primitive
+
+Existing DeFi protocols automate single-sided actions: swap tokens, supply liquidity, borrow against collateral. CONCORD automates a **bilateral relationship** — the ongoing interaction between two parties over time. This is the difference between a vending machine and a business partnership. AMMs replaced order books. Lending pools replaced banks. CONCORD replaces the legal and operational infrastructure that underpins every B2B financial relationship.
+
+### The Full Picture
+
+```
+Agent A (Treasury Manager, CVI Tier 3)          Agent B (Yield Protocol, CVI Tier 2)
+        │                                                   │
+        ├──── CVI Handshake ──────────────────────────────┤
+        │     "I am who I say I am. You are who you say."  │
+        │                                                   │
+        ├──── Structured Negotiation ─────────────────────┤
+        │     $50K USDC · 8.0% APY · 30 days · 150% coll. │
+        │                                                   │
+        ├──── Constitutional Validation ──────────────────┤
+        │     Both constitutions checked. Terms approved.   │
+        │                                                   │
+        ├──── Treaty Activation ──────────────────────────┤
+        │     CVA escrow locked. State → ACTIVE.            │
+        │                                                   │
+        │     ┌──────────────────────────────────┐         │
+        │     │  15-SECOND MONITORING LOOP       │         │
+        │     │  10 conditions · every cycle      │         │
+        │     │  Attestation recorded on-chain     │         │
+        │     └──────────────────────────────────┘         │
+        │                                                   │
+        │     All clear ──→ continue                        │
+        │     Degrading ──→ renegotiate                     │
+        │     Breached  ──→ Mediator Swarm → settle         │
+        │                                                   │
+        ├──── Settlement ─────────────────────────────────┤
+        │     CVA escrow released. Treaty complete.         │
+```
+
+This entire flow — from handshake to settlement — runs without a single human decision. The contracts are deployed on Monad testnet. The agent is running on Railway. The dashboard is live on Vercel. You can watch it work right now.
 
 ---
 
