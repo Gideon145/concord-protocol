@@ -81,7 +81,11 @@ export class TreatyMonitor {
             } catch {
                 // Monad RPC revert — fall back to known treaty IDs
                 console.warn("[Monitor] getActiveTreaties() failed, using fallback IDs");
-                activeTreaties = ["treaty-0", "treaty-1", "treaty-2"];
+                activeTreaties = [
+                    "0xc711ceaa1f0129dc7de2efc02fc5f9a068f5149224047e385c79c285c1c31ef1",
+                    "0xb185a8f2d8dc68544b48ec905c3fbf29aee43902c077f565b3a29f7775c18af7",
+                    "0xdd2cc9ceb030bb6fd4aeeb3a1c90ee878e6bbac0496728bfd8180656b40e88b1",
+                ];
             }
             
             const toMonitor = activeTreaties.slice(0, this.config.maxTreatiesPerCycle);
