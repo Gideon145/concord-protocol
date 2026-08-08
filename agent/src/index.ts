@@ -242,10 +242,15 @@ async function mainLoop(): Promise<void> {
             if (r.newState === 4) state.alertsTriggered++; // DEGRADING
         }
 
-        // Update active treaty count
-        const allTreaties = await treaty.getActiveTreaties();
-        state.activeTreaties = allTreaties.length;
-        state.treatiesMonitored = Math.min(allTreaties.length, config.maxTreatiesPerCycle);
+        // Update active treaty count (best-effort — Monad RPC may revert)
+        try {
+            const allTreaties = await treaty.getActiveTreaties();
+            state.activeTreaties = allTreaties.length;
+            state.treatiesMonitored = Math.min(allTreaties.length, config.maxTreatiesPerCycle);
+        } catch {
+            // Keep last known count — don't zero out on RPC flakiness
+            state.treatiesMonitored = state.activeTreaties;
+        }
 
     } catch (err: any) {
         console.error("[Agent] Main loop error:", err.message);
