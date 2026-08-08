@@ -10,6 +10,7 @@
   <img src="https://img.shields.io/badge/Cleanverse-CVI_|_CVA_|_CCP-blueviolet?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Monad-Testnet-836EF9?style=for-the-badge" />
   <img src="https://img.shields.io/badge/TypeScript-Agent_Service-3178C6?style=for-the-badge&logo=typescript" />
+  <a href="https://youtu.be/mkpFsPNikuk"><img src="https://img.shields.io/badge/YouTube-Demo_Video-FF0000?style=for-the-badge&logo=youtube" /></a>
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" />
 </p>
 
