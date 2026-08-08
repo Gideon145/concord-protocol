@@ -176,3 +176,14 @@
   background: var(--color-active);
   color: white;
 }
+
+/* Pulse highlight when demo scrolls to a section */
+.demo-pulse {
+  animation: demoPulse 1.5s ease-out;
+}
+
+@keyframes demoPulse {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); border-color: var(--color-active); }
+  50% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); border-color: var(--color-active); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); border-color: var(--border-subtle); }
+}
