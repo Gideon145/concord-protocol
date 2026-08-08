@@ -1,0 +1,178 @@
+/* ─── Demo Guide Overlay ─── */
+.demo-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.demo-guide {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-surface);
+  border-top: 2px solid var(--color-active);
+  padding: var(--space-4) var(--space-6);
+  pointer-events: all;
+  z-index: 101;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.demo-guide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.demo-guide-title {
+  font-size: var(--font-size-panel);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.demo-guide-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.demo-step-indicator {
+  font-family: var(--font-mono), monospace;
+  font-size: var(--font-size-meta);
+  color: var(--text-tertiary);
+  min-width: 40px;
+  text-align: center;
+}
+
+.demo-btn {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: var(--font-size-meta);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.demo-btn:hover { background: var(--bg-hover); }
+.demo-btn:disabled { opacity: 0.3; cursor: default; }
+
+.demo-btn--small { padding: 2px 8px; font-size: 14px; }
+.demo-btn--play { background: var(--color-success-dim); color: var(--color-success); border-color: rgba(34,197,94,0.3); }
+.demo-btn--pause { background: var(--color-warning-dim); color: var(--color-warning); border-color: rgba(245,158,11,0.3); }
+
+.demo-guide-steps {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+}
+
+.demo-step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  min-width: 180px;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  flex-shrink: 0;
+}
+
+.demo-step:hover { background: var(--bg-hover); }
+
+.demo-step--active {
+  border-color: var(--color-active);
+  background: var(--color-active-dim);
+  box-shadow: 0 0 0 1px var(--color-active);
+}
+
+.demo-step--done {
+  opacity: 0.5;
+}
+
+.demo-step--done:hover { opacity: 0.7; }
+
+.demo-step-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--bg-hover);
+  border: 2px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.demo-step--active .demo-step-dot {
+  background: var(--color-active);
+  border-color: var(--color-active);
+  color: white;
+}
+
+.demo-step--done .demo-step-dot {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: white;
+}
+
+.demo-step-content { flex: 1; min-width: 0; }
+
+.demo-step-time {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 1px;
+}
+
+.demo-step-title {
+  font-size: var(--font-size-meta);
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.demo-step-text {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: var(--space-1);
+  line-height: 1.4;
+}
+
+/* Demo toggle in topbar */
+.demo-toggle {
+  padding: var(--space-1) var(--space-3);
+  border-radius: 20px;
+  border: 1px solid var(--color-active);
+  background: transparent;
+  color: var(--color-active);
+  cursor: pointer;
+  font-size: var(--font-size-meta);
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.demo-toggle:hover { background: var(--color-active-dim); }
+
+.demo-toggle--active {
+  background: var(--color-active);
+  color: white;
+}
