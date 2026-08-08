@@ -162,18 +162,6 @@ function formatWei(val: string): string {
 
 // ─── Main Page ──────────────────────────────────────
 
-const DEMO_STEPS = [
-  { time: '0:00', title: 'Two Agents Appear', highlight: 'agents', text: 'Agent Alpha (Treasury Manager, CVI Tier 3) and Agent Beta (Yield Protocol, CVI Tier 2) meet on-chain.' },
-  { time: '0:20', title: 'Identity Handshake', highlight: 'cvi', text: 'Both agents query CVI. Green checkmarks: Tier 3 Verified / Tier 2 Verified. Cleanverse identity confirmed.' },
-  { time: '0:45', title: 'Negotiation', highlight: 'terms', text: 'Structured terms: $50K USDC, 8.0% APY, 7-day, 150% collateral. Constitutional checks pass.' },
-  { time: '1:15', title: 'Treaty Activation', highlight: 'escrow', text: 'CCP clears. CVA escrow locks $50K in verified USDC. Treaty state: ACTIVE. Monitor loop starts.' },
-  { time: '1:45', title: 'Live Monitoring', highlight: 'conditions', text: 'Dashboard: 10-condition grid. All green. Health score: 90%. 15-second attestation cycle running.' },
-  { time: '2:05', title: 'Degradation', highlight: 'state-machine', text: 'Collateral drops to 118%. Condition turns yellow. State → DEGRADING.' },
-  { time: '2:20', title: 'Autonomous Renegotiation', highlight: 'mediator', text: 'Alpha proposes new terms. Mediator Swarm evaluates: 84/100 Fair. Beta accepts. Treaty amended on-chain.' },
-  { time: '2:45', title: 'Hard Breach', highlight: 'breach', text: 'Beta CVI revoked. Immediate BREACHED (Tier 3). Mediator Swarm resolves: escrow → Alpha. Settlement executed.' },
-  { time: '3:00', title: 'Closing', highlight: 'all', text: 'CONCORD. Six Cleanverse primitives. Nine chains. Autonomous economic relationships. This is how AI agents will do business.' },
-];
-
 export default function MissionControl() {
   const [agentStatus, setAgentStatus] = useState<AgentStatus | null>(null);
   const [treaties, setTreaties] = useState<Treaty[]>([]);
@@ -183,49 +171,7 @@ export default function MissionControl() {
   const [feedHistory, setFeedHistory] = useState<MonitorResult[]>([]);
   const [isOnline, setIsOnline] = useState(false);
   const [tick, setTick] = useState(0);
-  const [demoStep, setDemoStep] = useState(-1); // -1 = hidden, 0-8 = steps
-  const [isPlaying, setIsPlaying] = useState(false);
   const feedRef = useRef<MonitorResult[]>([]);
-  const playRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  // ── Demo Playback ──
-  const startPlayback = useCallback(() => {
-    setIsPlaying(true);
-    setDemoStep(0);
-    let step = 0;
-    playRef.current = setInterval(() => {
-      step++;
-      if (step >= DEMO_STEPS.length) {
-        setIsPlaying(false);
-        if (playRef.current) clearInterval(playRef.current);
-      } else {
-        setDemoStep(step);
-      }
-    }, 20000); // 20s per step (matches demo timing)
-  }, []);
-
-  const stopPlayback = useCallback(() => {
-    setIsPlaying(false);
-    if (playRef.current) { clearInterval(playRef.current); playRef.current = null; }
-  }, []);
-
-  const nextStep = useCallback(() => {
-    stopPlayback();
-    setDemoStep((s) => Math.min(s + 1, DEMO_STEPS.length - 1));
-  }, [stopPlayback]);
-
-  const prevStep = useCallback(() => {
-    stopPlayback();
-    setDemoStep((s) => Math.max(s - 1, 0));
-  }, [stopPlayback]);
-
-  const startDemo = useCallback(() => {
-    setDemoStep(0);
-    if (treaties.length > 0) setSelectedId(treaties[0].treatyId);
-  }, [treaties]);
-
-  // ── Highlight target ──
-  const demoHighlight = demoStep >= 0 ? DEMO_STEPS[demoStep].highlight : null;
 
   // ── Polling ──
 
@@ -341,12 +287,6 @@ export default function MissionControl() {
             <span className={`beacon-dot ${isOnline && agentStatus?.status === 'running' ? 'beacon-dot--pulse' : ''}`} />
             {isOnline ? (agentStatus?.status || 'Online').toUpperCase() : 'OFFLINE'}
           </div>
-          <button
-            className={`demo-toggle ${demoStep >= 0 ? 'demo-toggle--active' : ''}`}
-            onClick={() => demoStep >= 0 ? setDemoStep(-1) : startDemo()}
-          >
-            {demoStep >= 0 ? '✕ Exit Demo' : '▶ Demo Guide'}
-          </button>
         </div>
       </div>
 
@@ -778,49 +718,6 @@ export default function MissionControl() {
           })}
         </div>
       </div>
-
-      {/* ── Demo Guide Overlay ── */}
-      {demoStep >= 0 && (
-        <div className="demo-overlay">
-          <div className="demo-guide">
-            <div className="demo-guide-header">
-              <div className="demo-guide-title">🎬 Demo Guide</div>
-              <div className="demo-guide-controls">
-                <button className="demo-btn demo-btn--small" onClick={prevStep} disabled={demoStep === 0}>◀</button>
-                <span className="demo-step-indicator">{demoStep + 1} / {DEMO_STEPS.length}</span>
-                <button className="demo-btn demo-btn--small" onClick={nextStep} disabled={demoStep === DEMO_STEPS.length - 1}>▶</button>
-                {isPlaying ? (
-                  <button className="demo-btn demo-btn--pause" onClick={stopPlayback}>⏸ Pause</button>
-                ) : (
-                  <button className="demo-btn demo-btn--play" onClick={startPlayback}>▶ Play All</button>
-                )}
-              </div>
-            </div>
-            <div className="demo-guide-steps">
-              {DEMO_STEPS.map((step, i) => (
-                <div
-                  key={i}
-                  className={`demo-step ${i === demoStep ? 'demo-step--active' : ''} ${i < demoStep ? 'demo-step--done' : ''}`}
-                  onClick={() => { stopPlayback(); setDemoStep(i); }}
-                >
-                  <div className="demo-step-dot">
-                    {i < demoStep ? '✓' : i === demoStep ? '●' : i + 1}
-                  </div>
-                  <div className="demo-step-content">
-                    <div className="demo-step-time">{step.time}</div>
-                    <div className="demo-step-title">{step.title}</div>
-                    {i === demoStep && (
-                      <div className="demo-step-text">{step.text}</div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* Highlight targets */}
-          <div className={`demo-highlight demo-highlight--${demoHighlight}`} />
-        </div>
-      )}
     </div>
   );
 }
